@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Randomized Butterfly Canvas Scene</title>
+        <style>
+            body {
+                margin: 0;
+                font-family: Arial, sans-serif;
+            }
+            canvas {
+                display: block;
+                margin: 20px auto;
+                background: #d0f0c0;
+                border: 2px solid #444;
+                border-radius: 8px;
+            }
+            #popup {
+                position: fixed;
+                top: 30%;
+                left: 50%;
+                transform: translateX(-50%);
+                background: white;
+                border: 3px solid #2a5d34;
+                border-radius: 12px;
+                padding: 20px 30px;
+                box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+                font-size: 1.5rem;
+                color: #2a5d34;
+                display: none;
+                user-select: none;
+            }
+            #popup button {
+                margin-top: 15px;
+                background: #2a5d34;
+                color: white;
+                border: none;
+                padding: 8px 14px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 1rem;
+            }
+            #popup button:hover {
+                background: #1e3e23;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="scene" width="700" height="450"></canvas>
+        <div id="popup">
+            <div>Congratulations!</div>
+            <button onclick="hidePopup()">Close</button>
+        </div>
+
+        <script>
+            const canvas = document.getElementById("scene");
+            const ctx = canvas.getContext("2d");
+            const popup = document.getElementById("popup");
+
+            // Background sky gradient
+            function drawBackground() {
+                const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                grad.addColorStop(0, "#87ceeb");
+                grad.addColorStop(1, "#d0f0c0");
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Grass blades
+            function drawGrass() {
+                ctx.fillStyle = "#4caf50";
+                for (let i = 0; i < 100; i++) {
+                    const x = Math.random() * canvas.width;
+                    const y = 380 + Math.random() * 60;
+                    const height = 20 + Math.random() * 20;
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + 3, y - height);
+                    ctx.lineTo(x + 6, y);
+                    ctx.fill();
+                }
+            }
+
+            // Tree trunk and branches
+            function drawTree(x, y) {
+                // trunk
+                ctx.fillStyle = "#6b4f3d";
+                ctx.fillRect(x, y, 20, 100);
+
+                // branches - layered circles
+                const leavesColors = ["#2e8b57", "#3cb371", "#228b22", "#006400"];
+                for (let i = 0; i < 10; i++) {
+                    ctx.beginPath();
+                    const cx = x + 10 + (Math.random() * 60 - 30);
+                    const cy = y - Math.random() * 60;
+                    const radius = 20 + Math.random() * 10;
+                    const color = leavesColors[Math.floor(Math.random() * leavesColors.length)];
+                    ctx.fillStyle = color;
+                    ctx.shadowColor = "rgba(0,0,0,0.2)";
+                    ctx.shadowBlur = 6;
+                    ctx.shadowOffsetX = 2;
+                    ctx.shadowOffsetY = 2;
+                    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            }
+
+            // Flowers with petals and stems
+            function drawFlower(x, y) {
+                // stem
+                ctx.strokeStyle = "#228b22";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x, y - 30);
+                ctx.stroke();
+
+                // petals
+                ctx.fillStyle = "#ff69b4";
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i * (Math.PI * 2)) / 5;
+                    const px = x + Math.cos(angle) * 10;
+                    const py = y - 30 + Math.sin(angle) * 10;
+                    ctx.beginPath();
+                    ctx.ellipse(px, py, 7, 12, angle, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                // center
+                ctx.fillStyle = "#ffd700";
+                ctx.beginPath();
+                ctx.arc(x, y - 30, 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Butterfly drawing function
+            function drawButterfly(x, y) {
+                ctx.save();
+                ctx.translate(x, y);
+
+                // left wing
+                const wingGradient = ctx.createRadialGradient(-15, 0, 5, -10, 0, 20);
+                wingGradient.addColorStop(0, "#ff69b4");
+                wingGradient.addColorStop(1, "#ff1493");
+                ctx.fillStyle = wingGradient;
+                ctx.beginPath();
+                ctx.ellipse(-15, 0, 25, 35, Math.PI / 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // right wing
+                const wingGradient2 = ctx.createRadialGradient(15, 0, 5, 10, 0, 20);
+                wingGradient2.addColorStop(0, "#ffb6c1");
+                wingGradient2.addColorStop(1, "#db7093");
+                ctx.fillStyle = wingGradient2;
+                ctx.beginPath();
+                ctx.ellipse(15, 0, 25, 35, -Math.PI / 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // body
+                const bodyGradient = ctx.createLinearGradient(0, -35, 0, 35);
+                bodyGradient.addColorStop(0, "#4b0082");
+                bodyGradient.addColorStop(1, "#800080");
+                ctx.fillStyle = bodyGradient;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 10, 35, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // antennae
+                ctx.strokeStyle = "#4b0082";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(-5, -35);
+                ctx.quadraticCurveTo(-10, -50, -15, -40);
+                ctx.moveTo(5, -35);
+                ctx.quadraticCurveTo(10, -50, 15, -40);
+                ctx.stroke();
+
+                ctx.restore();
+            }
+
+            // Popup handlers
+            async function showPopup() {
+                await new Promise((r) => setTimeout(r, 2000));
+                popup.style.display = "block";
+            }
+
+            function hidePopup() {
+                popup.style.display = "none";
+            }
+
+            window.hidePopup = hidePopup; // expose to HTML button
+
+            // Define the area within which the butterfly can appear
+            const butterflyArea = { xMin: 400, xMax: 550, yMin: 150, yMax: 220 };
+
+            // Function to get a random position within the allowed area
+            function getRandomButterflyPosition() {
+                const x = Math.floor(Math.random() * (butterflyArea.xMax - butterflyArea.xMin)) + butterflyArea.xMin;
+                const y = Math.floor(Math.random() * (butterflyArea.yMax - butterflyArea.yMin)) + butterflyArea.yMin;
+                return { x, y };
+            }
+
+            // Butterfly position variable (initialized randomly)
+            let butterflyPos = getRandomButterflyPosition();
+
+            // Butterfly bounding box (approximate) depends on butterflyPos
+            function getButterflyBounds(pos) {
+                return { x: pos.x - 30, y: pos.y - 35, width: 60, height: 70 };
+            }
+
+            // Draw full scene
+            function drawScene() {
+                drawBackground();
+                drawGrass();
+                drawTree(110, 320);
+                drawTree(540, 310);
+                drawFlower(290, 370);
+                drawFlower(340, 365);
+                drawFlower(320, 400);
+                drawButterfly(butterflyPos.x, butterflyPos.y);
+            }
+
+            drawScene();
+
+            // Click detection on butterfly
+            canvas.addEventListener("click", (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                const bounds = getButterflyBounds(butterflyPos);
+
+                if (mouseX >= bounds.x && mouseX <= bounds.x + bounds.width && mouseY >= bounds.y && mouseY <= bounds.y + bounds.height) {
+                    showPopup();
+                }
+            });
+        </script>
+    </body>
+</html>

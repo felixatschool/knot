@@ -1,0 +1,28 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+package-lock.json
+
+# Playwright
+test-results/
+playwright-report/
+.playwright/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.venv/
+venv/
+env/
+*.pkl
+
+# Screenshots output
+canvas.png
+
+# Other
+.DS_Store
